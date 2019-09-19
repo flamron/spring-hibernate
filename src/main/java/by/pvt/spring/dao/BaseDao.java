@@ -17,36 +17,25 @@ public interface BaseDao<T extends Serializable, E extends BaseEntity<T>> {
     SessionFactory getSessionFactory();
 
     default T save(E entity) {
-        @Cleanup Session session = getSessionFactory().openSession();
-        session.beginTransaction();
-        session.save(entity);
-        session.getTransaction().commit();
+        getSessionFactory().getCurrentSession().save(entity);
         return entity.getId();
     }
 
     default Optional<E> get(T id) {
-        @Cleanup Session session = getSessionFactory().openSession();
-        return Optional.ofNullable(session.get(getClazz(), id));
+        return Optional.ofNullable(getSessionFactory().getCurrentSession().get(getClazz(), id));
     }
 
     default void update(E entity) {
-        @Cleanup Session session = getSessionFactory().openSession();
-        session.beginTransaction();
-        session.update(entity);
-        session.getTransaction().commit();
+        getSessionFactory().getCurrentSession().update(entity);
     }
 
     default void delete(E entity) {
-        @Cleanup Session session = getSessionFactory().openSession();
-        session.beginTransaction();
-        session.delete(entity);
-        session.getTransaction().commit();
+        getSessionFactory().getCurrentSession().delete(entity);
     }
 
     default List<E> getAll() {
-        @Cleanup Session session = getSessionFactory().openSession();
         Class<E> clazz = getClazz();
-        return session.createQuery(String.format("select e from %s e", clazz.getSimpleName()), clazz).list();
+        return getSessionFactory().getCurrentSession().createQuery(String.format("select e from %s e", clazz.getSimpleName()), clazz).list();
     }
 
     @SuppressWarnings("unchecked")
